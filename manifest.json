@@ -1,7 +1,7 @@
 {
   "name": "Flashcard Generator",
   "short_name": "Flashcards",
-  "start_url": ".",
+  "start_url": "/Flash-cards/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007BFF",
