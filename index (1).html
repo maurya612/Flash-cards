@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashcard Generator PWA</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, textarea, select, button { margin: 5px 0; width: 100%; padding: 8px; }
+    .flashcard { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    .flashcard-question { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Flashcard Generator</h1>
+
+  <label>Topic:</label>
+  <input type="text" id="topicInput" placeholder="Enter topic name" />
+
+  <label>Flashcard Text (Question - Answer):</label>
+  <textarea id="flashcardText" rows="3" placeholder="Example: What is the capital of India? - New Delhi"></textarea>
+
+  <button id="addFlashcardBtn">Add Flashcard</button>
+
+  <h2>Flashcards for Topic: <span id="currentTopic">None</span></h2>
+  <div id="flashcardsContainer"></div>
+
+  <button id="generateLinkBtn">Generate Shareable Link</button>
+  <textarea id="shareLink" rows="3" readonly placeholder="Your shareable link will appear here"></textarea>
+
+  <script src="app.js"></script>
+</body>
+</html>
