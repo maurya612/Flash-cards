@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flashcard-pwa-cache-v1';
+const CACHE_NAME = 'flash-card cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
