@@ -1,80 +1,63 @@
-const topicInput = document.getElementById('topicInput');
-const flashcardText = document.getElementById('flashcardText');
-const addFlashcardBtn = document.getElementById('addFlashcardBtn');
-const flashcardsContainer = document.getElementById('flashcardsContainer');
-const currentTopic = document.getElementById('currentTopic');
-const generateLinkBtn = document.getElementById('generateLinkBtn');
-const shareLink = document.getElementById('shareLink');
+const $ = id => document.getElementById(id);
+let deck = [];
+try { deck = JSON.parse(localStorage.getItem('deck') || '[]'); } catch (e) {}
 
-let flashcards = [];
-let topic = '';
+function save() {
+  try { localStorage.setItem('deck', JSON.stringify(deck)); } catch (e) {}
+  render();
+}
 
-function renderFlashcards() {
-  flashcardsContainer.innerHTML = '';
-  flashcards.forEach(({ question, answer }, index) => {
-    const cardDiv = document.createElement('div');
-    cardDiv.className = 'flashcard';
-    cardDiv.innerHTML = `
-      <div class="flashcard-question">${index + 1}. Q: ${question}</div>
-      <div class="flashcard-answer">A: ${answer}</div>
-    `;
-    flashcardsContainer.appendChild(cardDiv);
+function parse(text) {
+  const cards = [];
+  let q = null, m;
+  const lines = text.replace(/\*\*/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+  for (const l of lines) {
+    if ((m = l.match(/^Q\s*[:.)-]\s*(.+)/i))) { q = m[1]; continue; }
+    if (q && (m = l.match(/^A\s*[:.)-]\s*(.+)/i))) { cards.push({ front: q, back: m[1] }); q = null; continue; }
+    const sep = l.includes('::') ? '::' : (l.includes('|') ? '|' : null);
+    if (sep) {
+      const [a, ...b] = l.split(sep);
+      const front = a.trim().replace(/^(?:[-*•]|\d+[.)])\s+/, '');
+      const back = b.join(sep).trim();
+      if (front && back) cards.push({ front, back });
+    }
+  }
+  return cards;
+}
+
+function render() {
+  $('n').textContent = deck.length;
+  $('list').innerHTML = '';
+  deck.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'item';
+    const t = document.createElement('span');
+    t.textContent = c.front + ' → ' + c.back;
+    const b = document.createElement('button');
+    b.textContent = '✕';
+    b.onclick = () => { deck.splice(i, 1); save(); };
+    d.append(t, b);
+    $('list').append(d);
   });
 }
 
-function parseFlashcardText(text) {
-  const parts = text.split(' - ');
-  if (parts.length === 2) {
-    return { question: parts[0].trim(), answer: parts[1].trim() };
-  }
-  return null;
-}
-
-addFlashcardBtn.onclick = () => {
-  if (!topicInput.value.trim()) {
-    alert('Please enter a topic name.');
-    return;
-  }
-  const flashcard = parseFlashcardText(flashcardText.value);
-  if (!flashcard) {
-    alert('Please enter flashcard text in "Question - Answer" format.');
-    return;
-  }
-  topic = topicInput.value.trim();
-  currentTopic.textContent = topic;
-
-  flashcards.push(flashcard);
-  renderFlashcards();
-
-  flashcardText.value = '';
+$('gen').onclick = () => {
+  const cards = parse($('input').value);
+  if (!cards.length) { alert('No cards found. Use "Question :: Answer" per line.'); return; }
+  deck = deck.concat(cards);
+  $('input').value = '';
+  save();
 };
 
-generateLinkBtn.onclick = () => {
-  if (!topic) {
-    alert('Add at least one flashcard and enter a topic first.');
-    return;
-  }
-  // Prepare data to encode in URL
-  const data = { topic, flashcards };
-  const encoded = encodeURIComponent(JSON.stringify(data));
-  const url = `${window.location.origin}${window.location.pathname}#data=${encoded}`;
-  shareLink.value = url;
+$('clear').onclick = () => { if (confirm('Clear the whole deck?')) { deck = []; save(); } };
+
+$('dl').onclick = () => {
+  const blob = new Blob([JSON.stringify(deck, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cards.json';
+  a.click();
 };
 
-// On page load, check if URL has data to load flashcards
-window.onload = () => {
-  const hash = window.location.hash;
-  if (hash.startsWith('#data=')) {
-    try {
-      const encoded = hash.slice(6);
-      const data = JSON.parse(decodeURIComponent(encoded));
-      topic = data.topic;
-      flashcards = data.flashcards || [];
-      topicInput.value = topic;
-      currentTopic.textContent = topic;
-      renderFlashcards();
-    } catch (e) {
-      console.error('Failed to load flashcards from URL', e);
-    }
-  }
-};
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+render();
