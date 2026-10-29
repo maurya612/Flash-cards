@@ -1,20 +1,9 @@
 {
-  "name": "Flashcard Generator",
+  "name": "Flashcards",
   "short_name": "Flashcards",
-  "start_url": "/Flash-cards/",
+  "start_url": "./viewer.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007BFF",
-  "icons": [
-    {
-      "src": "icons/1000086938.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/1000086938.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "background_color": "#17181c",
+  "theme_color": "#17181c",
+  "icons": [{ "src": "1000086938.png", "sizes": "512x512", "type": "image/png" }]
 }
