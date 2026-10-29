@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17181c">
+<link rel="manifest" href="manifest.json">
+<title>Flashcards</title>
+<style>
+ body{font-family:sans-serif;background:#17181c;color:#fff;text-align:center;padding:16px;max-width:600px;margin:auto}
+ #card{background:#262830;border-radius:16px;min-height:260px;display:flex;align-items:center;
+  justify-content:center;padding:20px;font-size:1.25rem;cursor:pointer;user-select:none}
+ #card.back{background:#1f3a5f}
+ button{padding:12px 18px;margin:12px 4px;border:0;border-radius:8px;font-size:1rem}
+</style>
+</head>
+<body>
+<h2>Flashcards</h2>
+<div id="card">Loading…</div>
+<p id="count"></p>
+<button id="prev">Prev</button>
+<button id="next">Next</button>
+<button id="shuffle">Shuffle</button>
+<script>
+let cards = [], i = 0, back = false;
+const card = document.getElementById('card');
+
+function render() {
+  if (!cards.length) return;
+  card.textContent = back ? cards[i].back : cards[i].front;
+  card.className = back ? 'back' : '';
+  document.getElementById('count').textContent = (i + 1) + ' / ' + cards.length;
+}
+function move(d) { i = (i + d + cards.length) % cards.length; back = false; render(); }
+
+card.onclick = () => { back = !back; render(); };
+document.getElementById('prev').onclick = () => move(-1);
+document.getElementById('next').onclick = () => move(1);
+document.getElementById('shuffle').onclick = () => {
+  cards.sort(() => Math.random() - 0.5); i = 0; back = false; render();
+};
+
+fetch('cards.json', { cache: 'no-store' })
+  .then(r => r.json())
+  .then(d => { cards = d; cards.length ? render() : card.textContent = 'No cards yet'; })
+  .catch(() => card.textContent = 'Could not load cards');
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+</script>
+</body>
+</html>
